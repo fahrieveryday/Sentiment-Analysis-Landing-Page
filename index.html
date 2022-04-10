@@ -300,11 +300,13 @@
         function getDataSentimentAnalysis() {
             showLoading();
             showChart();
-            createAnalysisChart();
             showTable();
             setTimeout(() => {
                 hideLoading();
                 scrollToAnalysisChart();
+                setTimeout(() => {
+                    createAnalysisChart();
+                }, 750);
                 hideButton();
             }, 750);
         }
