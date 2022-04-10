@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+
+<style>
+    /* Reset CSS element behavior */
+    * {
+        font-family: 'Poppins', sans-serif;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .center-column-wrapper {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .button-orange {
+        background-color: white;
+        border: 0;
+        padding: 5px 15px;
+        box-shadow: 0px 2px 5px rgba(135, 138, 141, 0.4);
+        transition: all .3s;
+        cursor: pointer;
+        border-radius: 5px;
+        background-color: #ffb959;
+        padding: 0.5rem 1rem;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .button-orange:hover {
+        box-shadow: 0px 5px 15px -5px rgba(135, 138, 141, 0.4);
+        transform: scale(1.03);
+    }
+
+    .button-orange:active {
+        box-shadow: 0px 2px 5px rgba(135, 138, 141, 0.4);
+        transform: scale(.98);
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td,
+    th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 21px;
+    }
+</style>
+
+<body>
+
+    <div id="loading" class="center-column-wrapper"
+        style="visibility: hidden; color: #fff;position: absolute; background-color: rgba(0, 0, 0, 0.55); bottom: 0; right: 0; left: 0; top: 0;">
+        <div>
+            <h1 style="font-size: 48px;">Loading...</h1>
+        </div>
+    </div>
+
+    <div class="center-column-wrapper">
+        <div>
+            <object data="assets/sentiment-analysis-animate.svg" width="300" height="300"> </object>
+        </div>
+        <h1>ANALISIS SENTIMEN TWITTER TERHADAP</h1>
+        <h1>COVID-19 DI INDONESIA</h1>
+        <div style="margin-top: 2rem;">
+            <button id="button-orange" class="button-orange" type="button" onclick="getDataSentimentAnalysis()">LIHAT
+                HASIL
+                ANALISIS</button>
+        </div>
+    </div>
+    <div id="analysis-chart" class="center-column-wrapper" style="position: absolute; left: -999px;">
+        <h3 id="scroll-to-middle">BAR CHART</h3>
+        <h3>HASIL ANALISIS SENTIMEN TWITTER TERHADAP</h3>
+        <h3>KASUS COVID-19 SELAMA 1 MINGGU TERAKHIR</h3>
+        <div style="margin-top: 2rem; height:40vh; width:60vw">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    <div id="analysis-table" class="center-column-wrapper" style="position: absolute; left: -999px;">
+        <h3>TABEL</h3>
+        <h3>HASIL ANALISIS SENTIMEN TWITTER TERHADAP</h3>
+        <h3>KASUS COVID-19 SELAMA 1 MINGGU TERAKHIR</h3>
+        <div style="margin-top: 2rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Tweet</th>
+                        <th>Sentimen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Null</td>
+                        <td>Null</td>
+                        <td>Null</td>
+                    </tr>
+                    <tr>
+                        <td>Null</td>
+                        <td>Null</td>
+                        <td>Null</td>
+                    </tr>
+                    <tr>
+                        <td>Null</td>
+                        <td>Null</td>
+                        <td>Null</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomArrayNumberWithLength(length) {
+            const array = [];
+            for (let index = 0; index < length; index++) {
+                array.push(randomNumber(1, 100));
+            }
+            return array;
+        }
+
+        function randomColor() {
+            const randomColorHex = Math.floor(Math.random() * 16777215).toString(16);
+            return `#${randomColorHex}`
+        }
+
+        function randomArrayColorWithLength(length) {
+            const array = [];
+            for (let index = 0; index < length; index++) {
+                array.push(randomColor());
+            }
+            return array;
+        }
+
+        const borderColorBarChart1 = [
+            '#000',
+        ];
+
+        const labels = ['Negatif', 'Netral', 'Positif'];
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Day 1',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 2',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 3',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 4',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 5',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 6',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Day 7',
+                    data: randomArrayNumberWithLength(3),
+                    backgroundColor: randomArrayColorWithLength(1),
+                    borderColor: borderColorBarChart1,
+                    borderWidth: 1
+                },
+            ]
+        };
+
+        const config = {
+            type: 'bar',
+            data: data,
+            plugins: [ChartDataLabels],
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end'
+                    }
+                },
+                responive: true,
+                layout: {
+
+                    padding: {
+                        left: 0,
+                        right: 0,
+                        top: 15,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        title: {
+                            display: true
+                        }
+                    }
+                }
+            },
+        };
+    </script>
+
+    <script>
+        function createAnalysisChart() {
+            const myChart = new Chart(
+                document.getElementById('myChart'),
+                config
+            );
+        }
+
+        function showLoading() {
+            const element = document.querySelector('#loading');
+            element.style.visibility = 'visible';
+        }
+        function hideLoading() {
+            const element = document.querySelector('#loading');
+            element.style.visibility = 'hidden';
+        }
+
+        function hideButton() {
+            const element = document.querySelector('#button-orange');
+            element.style.visibility = 'hidden';
+        }
+
+        function showChart() {
+            const element = document.querySelector('#analysis-chart');
+            element.style.position = 'static';
+        }
+
+        function showTable() {
+            const element = document.querySelector('#analysis-table');
+            element.style.position = 'static';
+        }
+
+        function scrollToAnalysisChart() {
+            document.getElementById('scroll-to-middle').scrollIntoView();
+        }
+
+        function getDataSentimentAnalysis() {
+            showLoading();
+            showChart();
+            createAnalysisChart();
+            showTable();
+            setTimeout(() => {
+                hideLoading();
+                scrollToAnalysisChart();
+                hideButton();
+            }, 750);
+        }
+    </script>
+
+</body>
+
+</html>
